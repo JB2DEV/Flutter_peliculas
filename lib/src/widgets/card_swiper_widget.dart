@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:peliculas/src/models/pelicula_model.dart';
 
 
 class CardSwiperWidget extends StatelessWidget {
 
-  final List<dynamic> peliculas; //Lista de las peliculas
+  final List<Pelicula> peliculas; //Lista de las peliculas
   //Le decimos al constructor que la lista de las peliculas es obligatoria con @required
   CardSwiperWidget({  @required this.peliculas});
 
@@ -20,7 +21,7 @@ class CardSwiperWidget extends StatelessWidget {
       child: Swiper(
         //FALTA INFO EN LA DOCUMENTACIÓN
         //Es necesario especificar las dimensiones(Metemos dentro de un container)
-        itemCount: 3, //Numero de items que queremos ver
+        itemCount: 20, //Numero de items que queremos ver
         itemWidth: _screenSize.width * 0.7, //Anchura del item
         itemHeight: _screenSize.height * 0.5, //Altura delitem
         layout: SwiperLayout.STACK, //Como queremos ver el swiper/Estilo del swiper
@@ -28,7 +29,11 @@ class CardSwiperWidget extends StatelessWidget {
           //Devuelve una imagen de esa direccion que ocupa todo el hueco posible
           return ClipRRect(
             borderRadius: BorderRadius.circular(20.0),
-            child: Image.network("http://via.placeholder.com/350x150",fit: BoxFit.fill),
+            child: FadeInImage(
+              image: NetworkImage(peliculas[index].getPosterImg()),
+              placeholder: AssetImage('assets/img/no-image.jpg'),
+              fit: BoxFit.cover,
+            ),
           );
         },
         

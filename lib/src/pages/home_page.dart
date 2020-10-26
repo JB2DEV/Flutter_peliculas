@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:peliculas/src/providers/peliculas_provider.dart';
 import 'package:peliculas/src/widgets/card_swiper_widget.dart';
+import 'package:peliculas/src/widgets/movie_horizontal.dart';
 
 
 class HomePage extends StatelessWidget {
 
+  final peliculasProvider = new PeliculasProvider();
+
   @override
   Widget build(BuildContext context) {
+
+    peliculasProvider.getPopulares();
     
     return Scaffold(
       appBar: AppBar(
-        centerTitle: false,
+        centerTitle: true,
         title: Text('Peliculas en cines'),
         backgroundColor: Colors.indigoAccent,
         actions: <Widget>[
@@ -21,8 +27,10 @@ class HomePage extends StatelessWidget {
       ),
       body: Container(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            _swiperTarjetas() //Llamada al método que crea un Swiper
+            _swiperTarjetas(), //Llamada al método que crea un Swiper
+            _footer(context), //Lamamada método peliculas populares footer
           ],
         ),
       )
@@ -30,7 +38,63 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _swiperTarjetas() {
-    //Retornamos la plantilla de Widget de Swiper con los atributos obligatorios
-    return CardSwiperWidget(peliculas: [1,2,3,4,5]);
+    
+
+    return FutureBuilder(
+      future: peliculasProvider.getEnCines(),
+      builder: (BuildContext context , AsyncSnapshot<List> snapshot){
+
+        if(snapshot.hasData){
+          return CardSwiperWidget(peliculas: snapshot.data);
+        }
+        else {
+          return Container(
+            height: 400.0,
+            child: Center(
+              child: CircularProgressIndicator()
+            )
+          );
+        }
+      }
+    );
+
+
+    
+  
+  }
+  //Peliculas que se encuentra en el footer /Populares
+  Widget _footer(BuildContext context){
+
+    return Container(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.only(left: 20.0),
+            child: Text('Populares', style: Theme.of(context).textTheme.subtitle1)
+          ),
+          SizedBox(height: 10.0),
+          //Stream Builder Populares
+          StreamBuilder( //Se ejecuta cada vez que se emita un valor en el stream. Eneste caso, cada vez que emitamos una pelicula (popularesSink(_populares))
+            stream: peliculasProvider.popularesStream, //Llamada el getter popularesStream
+            builder: (BuildContext context, AsyncSnapshot snapshot){
+
+              if (snapshot.hasData){
+                return MovieHorizontal(
+                  peliculas: snapshot.data,
+                //Funcion declarada en movie_horizontal 
+                  siguientePagina: peliculasProvider.getPopulares
+                );
+              }else{
+                return Center(child: CircularProgressIndicator());
+              }
+              
+            }
+          )
+        ],
+      ),
+    );
+
   }
 }
