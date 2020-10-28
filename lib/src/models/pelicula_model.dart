@@ -24,6 +24,9 @@ class Peliculas{
 //Generado por funcion Json to code
 
 class Pelicula {
+
+  String uniqueID; //Id generado para poder hacer la transicion si una peli está en el cine y es popular a la vez
+
   double popularity;
   int voteCount;
   bool video;

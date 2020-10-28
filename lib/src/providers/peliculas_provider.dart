@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
+import 'package:peliculas/src/models/actores_model.dart';
 import 'dart:convert';
 
 import 'package:peliculas/src/models/pelicula_model.dart';
@@ -73,6 +74,21 @@ class PeliculasProvider{
     return resp; //Retornamos las peliculas
   }
 
+  Future <List<Actor>>getCast(String peliId) async{
+
+    final url = Uri.https(_url, '3/movie/$peliId/credits', {
+
+      'api_key'   : _apikey,
+      'language'  : _language,
+    });
+
+    final resp = await http.get(url);
+        //Mapa de la peticion http: resp
+    final Map decodedData = jsonDecode(resp.body);
+    //Pasamos el mapa a lista con el método definido en la clase Cast de actores model
+    final cast = new Cast.fromJsonList(decodedData['cast']);
+    return cast.actores;
+  }
 
   Future<List<Pelicula>> _procesarRespuesta(Uri url) async {
 
@@ -84,6 +100,20 @@ class PeliculasProvider{
 
     return peliculas.items;    
 
+  }
+
+  Future <List<Pelicula>> buscarPelicula(String query)async{
+
+  //Uri = Widget para trabajar con https
+  final url = Uri.https(_url,'3/search/movie',{
+
+    'api_key'  : _apikey,
+    'language' : _language,
+    'query'    : query
+
+  });
+
+      return await _procesarRespuesta(url);
   }
 
 }
